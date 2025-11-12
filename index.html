@@ -1,0 +1,344 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Binary Pattern (LBP) Processor</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    h1 {
+      color: #1a1a1a;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      margin: 15px 0;
+    }
+
+    input[type="file"], select {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #0078d7;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    button:hover {
+      background-color: #005a9e;
+    }
+
+    img {
+      margin-top: 15px;
+      max-width: 100%;
+      border-radius: 8px;
+      display: none;
+    }
+
+    #output {
+      margin-top: 25px;
+      text-align: left;
+      white-space: pre-wrap;
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .loading {
+      display: none;
+      margin-top: 10px;
+      font-style: italic;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 Local Binary Pattern (LBP) Processor</h1>
+
+    <div class="input-group">
+      <label><strong>Upload Image:</strong></label><br>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+
+    <div class="input-group">
+      <label><strong>Choose Mode:</strong></label>
+      <select id="mode">
+        <option value="seq">Sequential</option>
+        <option value="omp">Parallel (OpenMP)</option>
+      </select>
+      <button onclick="runLBP()">Run LBP</button>
+    </div>
+
+    <img id="preview" alt="Preview Image">
+
+    <div class="loading" id="loading">Processing image... Please wait.</div>
+
+    <div id="output">Output will appear here.</div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const preview = document.getElementById("preview");
+    const loading = document.getElementById("loading");
+    const output = document.getElementById("output");
+
+    // Show preview of selected image
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+      } else {
+        preview.style.display = "none";
+      }
+    });
+
+    // Run LBP function
+    async function runLBP() {
+      const file = fileInput.files[0];
+      const mode = document.getElementById("mode").value;
+
+      if (!file) {
+        alert("Please select an image file first!");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("mode", mode);
+
+      loading.style.display = "block";
+      output.textContent = "";
+
+      try {
+        const res = await fetch("/run-lbp", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        output.textContent = data.output || "No output received.";
+      } catch (err) {
+        output.textContent = "Error: " + err.message;
+      } finally {
+        loading.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html> -->
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Local Binary Pattern (LBP) Parallel Image Processor</title>
+
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f6f8fa;
+      margin: 0;
+      padding: 0;
+      color: #222;
+    }
+
+    .container {
+      width: 80%;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #1f4e79;
+    }
+
+    h2 {
+      color: #333;
+      border-left: 5px solid #1f4e79;
+      padding-left: 10px;
+    }
+
+    p {
+      line-height: 1.6;
+      color: #555;
+    }
+
+    form {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    input[type="file"] {
+      border: 1px solid #ccc;
+      padding: 6px;
+      border-radius: 6px;
+    }
+
+    button {
+      background-color: #1f4e79;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #163a5c;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 60%;
+      margin: 15px 0;
+    }
+
+    table, th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background: #1f4e79;
+      color: white;
+    }
+
+    pre {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 8px;
+      height: 250px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    .goal, .upload, .results {
+      margin-bottom: 25px;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Local Binary Pattern (LBP) Parallel Image Processor</h1>
+
+    <section class="goal">
+      <h2>🎯 Project Goal</h2>
+      <p>
+        This project demonstrates the performance difference between
+        <b>Sequential</b> and <b>Parallel (OpenMP)</b> implementations of the
+        <b>Local Binary Pattern (LBP)</b> algorithm — a texture feature extraction
+        technique used in <b>face recognition</b> and <b>image classification</b>.
+        <br><br>
+        By comparing both modes, we can observe how parallel computing reduces
+        computation time and enhances efficiency.
+      </p>
+    </section>
+
+    <section class="upload">
+      <h2>🧩 Upload Input and Run</h2>
+      <form id="lbpForm">
+        <label for="file">Upload Image:</label>
+        <input type="file" id="file" name="file" required />
+        <button type="submit">Run LBP</button>
+      </form>
+    </section>
+
+    <section class="results">
+      <h2>⚙️ Results</h2>
+      <table id="resultTable">
+        <tr><th>Version</th><th>Execution Time (seconds)</th></tr>
+        <tr><td>Sequential</td><td id="seqTime">--</td></tr>
+        <tr><td>Parallel (OpenMP)</td><td id="ompTime">--</td></tr>
+      </table>
+
+      <h3>🧾 Output Log</h3>
+      <pre id="output">Waiting for input...</pre>
+    </section>
+
+    <div class="footer">
+      © 2025 Parallel Computing Project | Developed using C, OpenMP & Flask
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("lbpForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formData.append("file", document.getElementById("file").files[0]);
+
+      document.getElementById("output").innerText = "Processing, please wait...";
+
+      try {
+        const res = await fetch("/run-lbp", { method: "POST", body: formData });
+        const data = await res.json();
+
+        document.getElementById("seqTime").innerText = data.sequential.time;
+        document.getElementById("ompTime").innerText = data.parallel.time;
+
+        document.getElementById("output").innerText =
+          "=== Sequential Output ===\n" +
+          data.sequential.output +
+          "\n\n=== Parallel Output ===\n" +
+          data.parallel.output;
+      } catch (err) {
+        document.getElementById("output").innerText =
+          "Error occurred: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
+
